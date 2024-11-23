@@ -1,0 +1,34 @@
+spring:
+ 
+ application:
+  name: Personalized_Healthy_Lifestyle_Mobile_App
+
+ datasource:
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://localhost:3306/HealthSchedule
+  username: root
+  password: 
+  
+ jpa:
+  hibernate:
+   ddl-auto: update
+
+ servlet:
+ ## MULTIPART (MultipartProperties)
+  multipart:
+  # Enable multipart uploads
+   enabled: true
+   
+   # Threshold after which files are written to disk.
+   file-size-threshold: 2KB
+   # Max file size.
+   max-file-size: ${MAX_FILE_SIZE:200MB}
+   # Max Request Size
+   max-request-size: ${MAX_FILE_SIZE:200MB}
+ 
+tesseract:
+ data:
+  language: ${TESSERACT_LANGUAGE:eng}
+  dpi: ${TESSERACT_DPI:300}
+# library:
+#  path: ${TESSERACT_LIBRARY_PATH:/opt/homebrew/opt/tesseract/lib}

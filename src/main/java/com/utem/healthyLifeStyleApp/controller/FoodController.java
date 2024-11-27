@@ -50,7 +50,16 @@ public class FoodController {
 	
 	@PostMapping("/upload")
 	public ImageTextDto extractTextFromImage(@RequestPart("file") MultipartFile file) throws IOException {
+		
         return imageProcessService.extractTextFromImage(file);
+    }
+
+	@PostMapping("/extract")
+	public Food extractNutriFromImage(@RequestPart("file") MultipartFile file) throws IOException {
+		
+        ImageTextDto textDto =  imageProcessService.extractTextFromImage(file);
+		Food food = imageProcessService.extractNutritionFromOCRText(textDto);
+		return food;
     }
 
 }

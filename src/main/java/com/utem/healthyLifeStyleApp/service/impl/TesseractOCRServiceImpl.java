@@ -11,10 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.utem.healthyLifeStyleApp.dto.ImageTextDto;
-import com.utem.healthyLifeStyleApp.model.Food;
+import com.utem.healthyLifeStyleApp.model.Meal;
 import com.utem.healthyLifeStyleApp.service.ImagePreprocessingService;
 import com.utem.healthyLifeStyleApp.service.TesseractOCRService;
-import com.utem.healthyLifeStyleApp.utils.TesseractOcrUtil;
 
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.tess4j.Tesseract;
@@ -28,6 +27,8 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 
 	final ImagePreprocessingService preprocessingService;
 
+	final TextDetectionService textDetectionService;
+
 
 	
 	@Override
@@ -38,6 +39,7 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		try {
 			// Perform OCR on the image
 			Mat image = preprocessingService.convertToGrayscale(file);
+			
 					// Define a temporary file path
 			File tempFile = File.createTempFile("tempImage", ".png");
 			tempFile.deleteOnExit(); // Ensure the file is deleted when the program exits
@@ -59,10 +61,10 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		}
 	}
 
-	public Food extractNutritionFromOCRText(ImageTextDto textDto){
+	public Meal extractNutritionFromOCRText(ImageTextDto textDto){
 
 		String text = textDto.getText();
-		Food food = new Food();
+		Meal food = new Meal();
 
 		 // Using regex patterns to extract specific values
 		 Pattern servingSizePattern = Pattern.compile("Serving size.*?\\((\\d+\\.?\\d*)g\\)");

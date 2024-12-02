@@ -11,12 +11,10 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -27,8 +25,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.utem.healthyLifeStyleApp.service.ImagePreprocessingService;
 import com.utem.healthyLifeStyleApp.utils.TesseractOcrUtil;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
+
+    
+    final TextDetectionService textDetectionService;
+
 
     //1. convert MultipartFile to Mat
     private Mat convertMultipartFileToMat(MultipartFile file,String fileExtension) throws IOException{
@@ -61,6 +66,8 @@ public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
         String fileExtension = getFileExtension(file);
         Mat image = convertMultipartFileToMat(file,fileExtension);
 
+        System.out.println(textDetectionService.detectText(image));
+        
         //grayImage
         Mat grayImage = new Mat();
         Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGRA2GRAY);

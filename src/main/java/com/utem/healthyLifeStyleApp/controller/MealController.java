@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.utem.healthyLifeStyleApp.dto.UserMealDTO;
 import com.utem.healthyLifeStyleApp.dto.MealSearchDTO;
+import com.utem.healthyLifeStyleApp.dto.NutritionalSummaryDTO;
 import com.utem.healthyLifeStyleApp.model.Meal;
 import com.utem.healthyLifeStyleApp.model.MealType;
 import com.utem.healthyLifeStyleApp.service.MealService;
@@ -65,5 +66,10 @@ public class MealController {
 	public ResponseEntity<String> deleteUserMeal(@PathVariable("mealId") Integer mealId, @RequestParam Integer userId){
 		mealService.deleteUserMeal(userId,mealId);
 		return ResponseEntity.status(HttpStatus.OK).body(null);
+	}
+
+	@GetMapping("/user/summary")
+	public ResponseEntity<NutritionalSummaryDTO> getUserNutritionalSummaryByDate(@RequestParam Integer userId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+		return ResponseEntity.status(HttpStatus.OK).body(mealService.getNutritionalSummary(userId,date));
 	}
 }

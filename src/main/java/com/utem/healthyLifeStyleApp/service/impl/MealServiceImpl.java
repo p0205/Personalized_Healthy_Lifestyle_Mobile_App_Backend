@@ -1,6 +1,7 @@
 package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,12 +10,15 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.utem.healthyLifeStyleApp.dto.MealSearchDTO;
+import com.utem.healthyLifeStyleApp.dto.NutritionalSummaryDTO;
+import com.utem.healthyLifeStyleApp.dto.UserDTO;
 import com.utem.healthyLifeStyleApp.dto.UserMealDTO;
 import com.utem.healthyLifeStyleApp.mapper.MealMapper;
 import com.utem.healthyLifeStyleApp.mapper.UserMapper;
 import com.utem.healthyLifeStyleApp.mapper.UserMealMapper;
 import com.utem.healthyLifeStyleApp.model.Meal;
 import com.utem.healthyLifeStyleApp.model.MealType;
+import com.utem.healthyLifeStyleApp.model.User;
 import com.utem.healthyLifeStyleApp.model.UserMeal;
 import com.utem.healthyLifeStyleApp.repo.MealRepo;
 import com.utem.healthyLifeStyleApp.repo.UserMealRepo;
@@ -95,5 +99,39 @@ public class MealServiceImpl implements MealService{
                 .map(userMeal -> userMealMapper.toDto(userMeal))
                 .collect(Collectors.groupingBy(UserMealDTO::getMealType));
     }
+
+	public NutritionalSummaryDTO getNutritionalSummary(Integer userId, LocalDate date){
+		Map<MealType, List<UserMealDTO>> meals = getMealsByDateGroupedByType(userId, date);
+				
+		double totalCalories = 0;
+		double totalCarbs = 0;
+		double totalProtein = 0;
+		double totalFat = 0;
+
+		for(Map.Entry<MealType, List<UserMealDTO>> entry : meals.entrySet()){
+	
+			List<UserMealDTO> mealList = entry.getValue();
+	
+			for(UserMealDTO meal : mealList){
+				totalCalories += meal.getCalories();
+				totalCarbs += meal.getCarbsInGrams();
+				totalProtein += meal.getProteinInGrams();
+				totalFat += meal.getFatInGrams();
+			}
+		}
+
+
+		UserDTO user = userService.getUserById(userId);
+		double caloriesLeft = user.getGoalCalories() - totalCalories;
+
+		NutritionalSummaryDTO summaryDTO = NutritionalSummaryDTO.builder()
+																	.date(date)
+																	.caloriesLeft(caloriesLeft)
+																	.carbsIntake(totalCarbs)
+																	.proteinIntake(totalProtein)
+																	.fatIntake(totalFat)
+																	.build();
+		return summaryDTO;
+	}
 
 }

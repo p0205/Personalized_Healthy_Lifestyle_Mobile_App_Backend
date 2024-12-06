@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.utem.healthyLifeStyleApp.dto.MealSearchDTO;
+import com.utem.healthyLifeStyleApp.dto.NutritionalSummaryDTO;
 import com.utem.healthyLifeStyleApp.dto.UserMealDTO;
 import com.utem.healthyLifeStyleApp.model.Meal;
 import com.utem.healthyLifeStyleApp.model.MealType;
@@ -18,4 +19,5 @@ public interface MealService {
 	public UserMealDTO getUserMeal(Integer userId, Integer mealId);
 	public void deleteUserMeal(Integer userId, Integer mealId);
 	public Map<MealType, List<UserMealDTO>> getMealsByDateGroupedByType(Integer userId,LocalDate date);
+	public NutritionalSummaryDTO getNutritionalSummary(Integer userId, LocalDate date);
 }

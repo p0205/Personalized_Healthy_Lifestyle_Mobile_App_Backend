@@ -17,7 +17,7 @@ public interface MealService {
 	public Meal getMealById(Integer id);
 	public UserMealDTO addUserMeal(UserMealDTO userMealDTO);
 	public UserMealDTO getUserMeal(Integer userId, Integer mealId);
-	public void deleteUserMeal(Integer userId, Integer mealId);
+	public void deleteUserMeal(Integer userMealId);
 	public Map<MealType, List<UserMealDTO>> getMealsByDateGroupedByType(Integer userId,LocalDate date);
 	public NutritionalSummaryDTO getNutritionalSummary(Integer userId, LocalDate date);
 }

@@ -2,11 +2,15 @@ package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.utem.healthyLifeStyleApp.dto.SportSummary;
 import com.utem.healthyLifeStyleApp.dto.UserDTO;
+import com.utem.healthyLifeStyleApp.dto.UserMealDTO;
 import com.utem.healthyLifeStyleApp.dto.UserSportDTO;
 import com.utem.healthyLifeStyleApp.mapper.UserMapper;
 import com.utem.healthyLifeStyleApp.mapper.UserSportMapper;
@@ -73,10 +77,16 @@ public class SportServiceImpl implements SportService{
         return calories_per_hour_per_kg * durationHours * weight;
     }
 
-
+    
     @Override
-    public List<UserSportDTO> getUserSportListByDate(Integer userId,LocalDate date) {
-        return userSportMapper.toDtoList(userSportRepo.findByUserIdAndDate(userId,date));
+    public Map<String, List<UserSportDTO>> getUserSportListByDate(Integer userId,LocalDate date) {
+        List<UserSport>  userSports = userSportRepo.findByUserIdAndDate(userId,date);
+
+         // Group meals by MealType
+        return userSports.stream()
+                .collect(Collectors.groupingBy(
+                    userSport -> userSport.getSport().getType(),
+                    Collectors.mapping(userSportMapper::toDto, Collectors.toList())));
     }
 
     public List<UserSportDTO> getUserSport(Integer userId, Integer sportId){
@@ -84,8 +94,26 @@ public class SportServiceImpl implements SportService{
     }
 
     @Override
-    public void deleteUserSport(UserSport userSport) {
-        userSportRepo.delete(userSport);
+    public void deleteUserSport(Integer userSportId) {
+        userSportRepo.deleteById(userSportId);
+    }
+
+    @Override
+    public SportSummary getSportSummary(int userId, LocalDate date) {
+        SportSummary summary = new SportSummary();
+        summary.setCalsBurntByType(getCaloriesBySportType(userSportRepo.findCaloriesBySportTypeAndDate(userId,date)));
+        summary.setDate(date);
+        summary.setTotalCalsBurnt(userSportRepo.findTotalCaloriesByType(userId, date));
+        return summary;
+    } 
+
+    private Map<String, Double> getCaloriesBySportType( List<Object[]> results) {
+    
+        return results.stream()
+                      .collect(Collectors.toMap(
+                          result -> (String) result[1], // Sport type
+                          result -> ((Number) result[0]).doubleValue() // Total calories
+                      ));
     }
 
 

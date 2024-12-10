@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserMealDTO {
 	
+	private Integer id;
 	private MealType mealType;
 	private Integer userId;
 	private Integer mealId;

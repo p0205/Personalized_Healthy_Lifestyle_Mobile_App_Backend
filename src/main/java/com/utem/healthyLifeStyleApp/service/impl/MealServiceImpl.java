@@ -68,9 +68,8 @@ public class MealServiceImpl implements MealService{
 	}
 
 	@Override
-	public void deleteUserMeal(Integer userId, Integer mealId) {
-		UserMeal userMeal = userMealRepo.findByUserIdAndMealId(userId,mealId);
-		userMealRepo.delete(userMeal);
+	public void deleteUserMeal(Integer userMealId) {
+		userMealRepo.deleteById(userMealId);
 	}
 
 	@Override

@@ -62,10 +62,10 @@ public class MealController {
 		return ResponseEntity.status(HttpStatus.OK).body(mealService.getUserMeal(userId,mealId));
 	}
 
-	@DeleteMapping("/user/{mealId}")
-	public ResponseEntity<String> deleteUserMeal(@PathVariable("mealId") Integer mealId, @RequestParam Integer userId){
-		mealService.deleteUserMeal(userId,mealId);
-		return ResponseEntity.status(HttpStatus.OK).body(null);
+	@DeleteMapping("/user/delete/{userMealId}")
+	public ResponseEntity<String> deleteUserMeal(@PathVariable("userMealId") Integer userMealId){
+		mealService.deleteUserMeal(userMealId);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}
 
 	@GetMapping("/user/summary")

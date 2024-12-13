@@ -15,6 +15,7 @@ import com.utem.healthyLifeStyleApp.dto.UserSportDTO;
 import com.utem.healthyLifeStyleApp.mapper.UserMapper;
 import com.utem.healthyLifeStyleApp.mapper.UserSportMapper;
 import com.utem.healthyLifeStyleApp.model.Sport;
+import com.utem.healthyLifeStyleApp.model.User;
 import com.utem.healthyLifeStyleApp.model.UserSport;
 import com.utem.healthyLifeStyleApp.repo.SportRepo;
 import com.utem.healthyLifeStyleApp.repo.UserSportRepo;

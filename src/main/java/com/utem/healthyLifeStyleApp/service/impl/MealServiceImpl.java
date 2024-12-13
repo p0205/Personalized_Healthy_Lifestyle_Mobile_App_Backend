@@ -1,7 +1,6 @@
 package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +17,6 @@ import com.utem.healthyLifeStyleApp.mapper.UserMapper;
 import com.utem.healthyLifeStyleApp.mapper.UserMealMapper;
 import com.utem.healthyLifeStyleApp.model.Meal;
 import com.utem.healthyLifeStyleApp.model.MealType;
-import com.utem.healthyLifeStyleApp.model.User;
 import com.utem.healthyLifeStyleApp.model.UserMeal;
 import com.utem.healthyLifeStyleApp.repo.MealRepo;
 import com.utem.healthyLifeStyleApp.repo.UserMealRepo;

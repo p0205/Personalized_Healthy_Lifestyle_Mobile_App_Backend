@@ -24,4 +24,9 @@ public class UserController {
 		 return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id));
 	 }
 
+	 @GetMapping("/{id}/weight")
+	 public ResponseEntity<Double> getUserWeightById(@PathVariable("id") Integer id) {
+		 return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id).getWeight());
+	 }
+
 }

@@ -46,17 +46,12 @@ public class SportController {
         return ResponseEntity.status(HttpStatus.OK).body(sportService.getSportById(id));
     }
 
+    
     //checked
     @PostMapping("/user")
     public ResponseEntity<UserSportDTO> addUserSport(@RequestBody UserSportDTO dto){
   
         return ResponseEntity.status(HttpStatus.CREATED).body(sportService.addUserSport(dto));
-    }
-
-    //maybe unnecessary
-    @GetMapping("/user/{userId}/{sportId}")
-    public ResponseEntity<List<UserSportDTO>> getUserSport(@PathVariable("sportId") Integer sportId, @PathVariable("userId") Integer userId){
-        return ResponseEntity.status(HttpStatus.OK).body(sportService.getUserSport(userId, sportId));
     }
 
     //checked
@@ -78,4 +73,5 @@ public class SportController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
+    
 }

@@ -1,8 +1,6 @@
 package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.utem.healthyLifeStyleApp.dto.UserDTO;
@@ -11,14 +9,15 @@ import com.utem.healthyLifeStyleApp.model.User;
 import com.utem.healthyLifeStyleApp.repo.UserRepo;
 import com.utem.healthyLifeStyleApp.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-	
-	@Autowired
-	private UserRepo userRepo;
-	
-	@Autowired
-	private UserMapper mapper;
+
+	final private UserRepo userRepo;
+
+	final private UserMapper mapper;
 
 	@Override
 	public UserDTO getUserById(Integer id) {
@@ -27,7 +26,5 @@ public class UserServiceImpl implements UserService{
 		if(user.isEmpty())
 			return null;
 		return mapper.toDTO(user.get());
-		
 	}
-
 }

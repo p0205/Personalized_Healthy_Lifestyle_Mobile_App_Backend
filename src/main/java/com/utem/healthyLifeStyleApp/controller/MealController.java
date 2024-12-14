@@ -41,7 +41,7 @@ public class MealController {
 	public ResponseEntity<List<MealSearchDTO>> getMatchingMealList(@RequestParam String name){
 		return ResponseEntity.status(HttpStatus.OK).body(mealService.getMatchingFoodList(name));
 	}
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<Meal> getMealById(@PathVariable("id") Integer id){
 		return ResponseEntity.status(HttpStatus.OK).body(mealService.getMealById(id));

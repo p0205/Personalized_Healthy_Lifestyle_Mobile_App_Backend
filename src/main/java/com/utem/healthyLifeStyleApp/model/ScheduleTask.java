@@ -43,21 +43,6 @@ public class ScheduleTask {
     @Column(nullable = false)
     private LocalDateTime endDateTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Day day;
-
-
-    public enum Day {
-        MONDAY, 
-        TUESDAY, 
-        WEDNESDAY, 
-        THURSDAY, 
-        FRIDAY, 
-        SATURDAY, 
-        SUNDAY
-    }
-    
 }
 
 

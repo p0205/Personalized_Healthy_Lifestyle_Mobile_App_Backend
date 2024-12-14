@@ -1,6 +1,5 @@
 package com.utem.healthyLifeStyleApp.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Schedule {
+public class UserScore {
 
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +26,9 @@ public class Schedule {
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
-    @Column(length = 12, nullable=false)
-    private String day;
+    @ManyToOne
+    @JoinColumn(name = "test_id",nullable = false)
+	private HealthTest test;
 
+    private Integer score;
 }

@@ -22,17 +22,20 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String email;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String password;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer age;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private char gender;
+
+	@Column(nullable = true)
+	private String name;
 
 	@Column(nullable = false)
 	private String occupationType;
@@ -49,9 +52,6 @@ public class User {
 	@Column(nullable = false)
 	private Integer noOfFamilyMember;
 
-	@Column(nullable = false)
-	private String name;
-	
 	@Column(nullable = false)
 	private Double weight;
 

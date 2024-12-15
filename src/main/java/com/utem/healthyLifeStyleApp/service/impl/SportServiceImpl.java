@@ -44,6 +44,11 @@ public class SportServiceImpl implements SportService{
     }
 
     @Override
+    public List<String> getSportTypeList(){
+        return sportRepo.findDistinctSportTypes();
+    }
+
+    @Override
     public List<Sport> getMatchingSportList(String name) {
        return sportRepo.findByNameLike("%"+name+"%");
     }

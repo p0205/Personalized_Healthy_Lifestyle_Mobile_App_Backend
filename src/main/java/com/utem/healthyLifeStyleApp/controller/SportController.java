@@ -34,6 +34,12 @@ public class SportController {
         return ResponseEntity.status(HttpStatus.CREATED).body(sportService.addSport(sport));
     }
 
+   //checked
+   @GetMapping("/types")
+   public ResponseEntity<List<String>> getSportTypeList(){
+       return ResponseEntity.status(HttpStatus.OK).body(sportService.getSportTypeList());
+   } 
+
     //checked
     @GetMapping("/search")
     public ResponseEntity<List<Sport>> getMatchingSportList(@RequestParam("query") String query){
@@ -46,7 +52,6 @@ public class SportController {
         return ResponseEntity.status(HttpStatus.OK).body(sportService.getSportById(id));
     }
 
-    
     //checked
     @PostMapping("/user")
     public ResponseEntity<UserSportDTO> addUserSport(@RequestBody UserSportDTO dto){

@@ -55,7 +55,6 @@ public class TextDetectionService {
 
         List<Rect> boxes = decodePredictions(scores,geometry,oriSize);
 
-
         //Draw bounding boxes
         for(Rect rect: boxes){
             Imgproc.rectangle(orig, rect.tl(), rect.br(),new Scalar(0,255,0),2);
@@ -129,4 +128,6 @@ public class TextDetectionService {
         
         return rectangles;
     }
+
+    
 }

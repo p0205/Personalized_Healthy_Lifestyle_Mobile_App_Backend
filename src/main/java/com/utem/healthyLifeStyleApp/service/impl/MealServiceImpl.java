@@ -110,9 +110,16 @@ public class MealServiceImpl implements MealService{
 			List<UserMealDTO> mealList = entry.getValue();
 	
 			for(UserMealDTO meal : mealList){
-				totalCalories += meal.getCalories();
+				if(meal.getCalories() !=null)
+					totalCalories += meal.getCalories();
+					
+				if(meal.getCarbsInGrams() !=null)
 				totalCarbs += meal.getCarbsInGrams();
-				totalProtein += meal.getProteinInGrams();
+
+				if(meal.getProteinInGrams() !=null)
+					totalProtein += meal.getProteinInGrams();
+
+				if(meal.getFatInGrams() !=null)
 				totalFat += meal.getFatInGrams();
 			}
 		}

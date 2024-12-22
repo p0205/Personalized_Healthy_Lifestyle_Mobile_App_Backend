@@ -60,6 +60,34 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 	                    .build();
 		}
 	}
+	public ImageTextDto extractTextFromImage2(MultipartFile file) throws IOException {
+	
+		nu.pattern.OpenCV.loadLocally();
+
+		try {
+			// Perform OCR on the image
+			Mat image = preprocessingService.convertToGrayscale(file);
+			
+					// Define a temporary file path
+			File tempFile = File.createTempFile("tempImage", ".png");
+			tempFile.deleteOnExit(); // Ensure the file is deleted when the program exits
+			
+			// Save the Mat image to the temporary file
+			Imgcodecs.imwrite(tempFile.getAbsolutePath(), image);
+    
+			  String text = tesseract.doOCR(tempFile);
+			  
+	            return ImageTextDto.builder()
+	                    .fileName(file.getOriginalFilename())
+	                    .text(text)
+	                    .build();
+		}catch(TesseractException e) {
+			   return ImageTextDto.builder()
+	                    .fileName(file.getOriginalFilename())
+	                    .text("")
+	                    .build();
+		}
+	}
 
 	public Meal extractNutritionFromOCRText(ImageTextDto textDto){
 
@@ -137,4 +165,5 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		 }
 		 return food;
 	}
+
 }

@@ -33,8 +33,9 @@ public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
 
     
     final TextDetectionService textDetectionService;
+    final TableServiceImpl detector;
 
-
+    
     //1. convert MultipartFile to Mat
     private Mat convertMultipartFileToMat(MultipartFile file,String fileExtension) throws IOException{
         BufferedImage bufferedImage = TesseractOcrUtil.createImageFromBytes(file.getBytes());
@@ -67,78 +68,25 @@ public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
         Mat image = convertMultipartFileToMat(file,fileExtension);
 
         System.out.println(textDetectionService.detectText(image));
-        
+
+        //crop the detected nutrition table(if any)
+        Mat detectedTable  = detector.cropNutritionTable(image);
+
+        if(detectedTable == null){
+            System.out.println("no table is detected");
+        }
+
         //grayImage
         Mat grayImage = new Mat();
-        Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGRA2GRAY);
+        Imgproc.cvtColor(detectedTable, grayImage, Imgproc.COLOR_BGRA2GRAY);
         saveGrayScaleImage(grayImage,file.getOriginalFilename()+"grayImage");
 
         Mat horizontal = detectHorizontalLine(image);
         saveGrayScaleImage(horizontal,file.getOriginalFilename()+"horizontal");
 
-        // // Create blurred image
-        // Mat blurred = new Mat();
-        // Imgproc.GaussianBlur(horizontal, blurred, new Size(5, 5), 1.5);
-        // saveGrayScaleImage(blurred,file.getOriginalFilename()+"blurred2");
-
-        // // Create the high-frequency mask (original - blurred)
-        // Mat highFreq = new Mat();
-        // Core.subtract(horizontal, blurred, highFreq);
-        // saveGrayScaleImage(highFreq,file.getOriginalFilename()+"highFreq");
-
-        // // Amplify the high-frequency components and add them back
-        // Mat sharpImage = new Mat();
-        // Core.addWeighted(horizontal, 1.5, highFreq, 0.8, 0, sharpImage);
-        // saveGrayScaleImage(sharpImage,file.getOriginalFilename()+"sharpImage2");
-
-        // //Apply adaptive histogram equalization
-        // Imgproc.equalizeHist(sharpImage, sharpImage);
-        // saveGrayScaleImage(sharpImage,file.getOriginalFilename()+"sharpImage-afterHistEq");
-
-        // Mat equalized = new Mat();
-        // Imgproc.equalizeHist(grayImage, equalized);
-
-        // Step 3: Apply a Bilateral Filter
-        // Mat filtered = new Mat();
-        // Imgproc.bilateralFilter(grayImage, filtered, 10, 10, 30); // Adjust parameters as needed
-
-        // Mat sobelEdges = new Mat();
-        // Imgproc.Sobel(grayImage, sobelEdges, CvType.CV_8U, 1, 0);
-
-        // // Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
-        // Mat enhanced = new Mat();
-        // CLAHE clahe = Imgproc.createCLAHE(2.0, new Size(8, 8));
-        // clahe.apply(sharpImage, enhanced);
-        // saveGrayScaleImage(enhanced,file.getOriginalFilename()+"clahe");
-    
-        // Apply adaptive thresholding
-        // Mat binary = new Mat();
-        // Imgproc.adaptiveThreshold(
-        //     sharpImage,
-        //     binary,
-        //     255,
-        //     Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
-        //     Imgproc.THRESH_BINARY,
-        //     11,  // block size
-        //     2    // constant subtracted from mean
-        // );
-        // saveGrayScaleImage(highFreq,file.getOriginalFilename()+"binary");
-
-
-    //     List<MatOfPoint> contours = new ArrayList<>();
-    //     Mat hierarchy = new Mat();
-    //     System.out.println("Enter findcontours........");
-    //     Imgproc.findContours(binary, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-    //     System.out.println("End findcontours........");
-
-    //    // Filter small contours
-    //     contours.removeIf(contour -> Imgproc.contourArea(contour) < 100);
-        
-    //     Mat result = Mat.zeros(image.size(), CvType.CV_8UC3);
-    //     Imgproc.drawContours(result, contours, -1, new Scalar(255, 255, 255), -1);
-
         return horizontal;
     }
+    
 
     private void saveGrayScaleImage(Mat grayscaleImage,String filename) throws IOException {
         // Get the path to the resources directory
@@ -208,24 +156,6 @@ public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
         return result;
     }
 
-    private Mat detectVerticalLines(Mat binary) {
-        // Create structure element for extracting vertical lines
-        int verticalSize = binary.rows() / 30;
-        Mat verticalStructure = Imgproc.getStructuringElement(
-            Imgproc.MORPH_RECT, 
-            new Size(1, verticalSize)
-        );
-
-        // Apply morphology operations
-        Mat vertical = new Mat();
-        binary.copyTo(vertical);
-        
-        // Extract vertical lines
-        Imgproc.erode(vertical, vertical, verticalStructure);
-        Imgproc.dilate(vertical, vertical, verticalStructure);
-
-        return vertical;
-    }
 
     private Mat detectLines(Mat grayScale) throws IOException{
         Mat bw = new Mat();

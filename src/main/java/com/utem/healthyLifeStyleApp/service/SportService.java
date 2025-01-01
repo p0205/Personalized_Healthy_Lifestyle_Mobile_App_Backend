@@ -11,6 +11,7 @@ import com.utem.healthyLifeStyleApp.model.Sport;
 public interface SportService {
 
     public Sport addSport(Sport sport);
+    public List<String> getSportTypeList();
     public List<Sport> getMatchingSportList(String name);
     public Sport getSportById(Integer sportId);
     public UserSportDTO addUserSport(UserSportDTO dto);
@@ -18,5 +19,6 @@ public interface SportService {
     public List<UserSportDTO> getUserSport(Integer userId, Integer sportId);
     public void deleteUserSport(Integer userSportID);
     public SportSummary getSportSummary(int userId, LocalDate date);
+
     
 }

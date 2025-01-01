@@ -10,12 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.utem.healthyLifeStyleApp.dto.SportSummary;
 import com.utem.healthyLifeStyleApp.dto.UserDTO;
-import com.utem.healthyLifeStyleApp.dto.UserMealDTO;
 import com.utem.healthyLifeStyleApp.dto.UserSportDTO;
 import com.utem.healthyLifeStyleApp.mapper.UserMapper;
 import com.utem.healthyLifeStyleApp.mapper.UserSportMapper;
 import com.utem.healthyLifeStyleApp.model.Sport;
-import com.utem.healthyLifeStyleApp.model.User;
 import com.utem.healthyLifeStyleApp.model.UserSport;
 import com.utem.healthyLifeStyleApp.repo.SportRepo;
 import com.utem.healthyLifeStyleApp.repo.UserSportRepo;
@@ -41,6 +39,11 @@ public class SportServiceImpl implements SportService{
     @Override
     public Sport addSport(Sport sport) {
         return sportRepo.save(sport);
+    }
+
+    @Override
+    public List<String> getSportTypeList(){
+        return sportRepo.findDistinctSportTypes();
     }
 
     @Override

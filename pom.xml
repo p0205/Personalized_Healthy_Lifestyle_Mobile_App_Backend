@@ -81,6 +81,12 @@
 			<artifactId>opencv</artifactId>
 			<version>4.9.0-0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.bytedeco/opencv -->
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>opencv</artifactId>
+			<version>4.10.0-1.5.11</version>
+		</dependency>
 
 	</dependencies>
 

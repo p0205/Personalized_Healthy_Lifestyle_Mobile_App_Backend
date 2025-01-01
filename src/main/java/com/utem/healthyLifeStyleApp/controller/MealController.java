@@ -34,6 +34,7 @@ public class MealController {
 	
 	@PostMapping
 	public ResponseEntity<Meal> addMeal(@RequestBody Meal meal){
+
 		return ResponseEntity.status(HttpStatus.CREATED).body(mealService.addMeal(meal));
 	}
 

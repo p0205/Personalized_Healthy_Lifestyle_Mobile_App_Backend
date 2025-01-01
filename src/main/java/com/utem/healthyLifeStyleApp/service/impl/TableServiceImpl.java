@@ -192,7 +192,6 @@ public class TableServiceImpl {
         
         // Save the cropped image
         Imgcodecs.imwrite("cropped_nutrition_table.png", croppedTable);
-        System.out.println("end cropNutritionTable");
         return croppedTable;
 
     } catch (Exception e) {
@@ -203,7 +202,6 @@ public class TableServiceImpl {
 
 private double calculateNutritionTableScore(Mat region, Rect bounds) {
     double score = 0.0;
-    System.out.println("enter calculateNutritionTableScore");
     // 1. Aspect ratio check (nutrition tables typically have height > width)
     double aspectRatio = (double) bounds.height / bounds.width;
     if (aspectRatio > 1.2 && aspectRatio < 2.5) {
@@ -257,7 +255,6 @@ private double calculateNutritionTableScore(Mat region, Rect bounds) {
     if (percentCount > 3) {
         score += 20.0;
     }
-    System.out.println("End calculateNutritionTableScore");
     return score;
 }
 
@@ -318,24 +315,20 @@ private List<Rect> detectTableRegions(Mat image) {
             tableRegions.add(rect);
         }
     }
-    System.out.println("End detectTableRegions");
     return tableRegions;
 }
 
 private String performOCR(Mat image) {
     nu.pattern.OpenCV.loadLocally();
-    System.out.println("enter performOCR");
     try {
 
         BufferedImage bufferedImage = matToBufferedImage(image);
-        System.out.println("enter performOCR");
         return tesseract.doOCR(bufferedImage);
     } catch (Exception e) {
         return "";
     }
 }
 private BufferedImage matToBufferedImage(Mat mat) {
-    System.out.println("enter matToBufferedImage");
     // Convert OpenCV Mat to BufferedImage for OCR
     int type = BufferedImage.TYPE_BYTE_GRAY;
     if (mat.channels() > 1) {
@@ -362,7 +355,6 @@ private BufferedImage matToBufferedImage(Mat mat) {
         WritableRaster raster = Raster.createInterleavedRaster(buffer, mat.cols(), mat.rows(), mat.cols()*3, 3, new int[]{0,1,2}, null);
         image.setData(raster);
     }
-    System.out.println("end matToBufferedImage");
     return image;
 }
 

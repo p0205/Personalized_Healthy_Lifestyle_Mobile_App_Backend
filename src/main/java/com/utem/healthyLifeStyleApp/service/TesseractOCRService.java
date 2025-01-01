@@ -10,6 +10,6 @@ import com.utem.healthyLifeStyleApp.model.Meal;
 public interface TesseractOCRService {
  
 	ImageTextDto extractTextFromImage(MultipartFile file) throws IOException;
-	ImageTextDto extractTextFromImage2(MultipartFile file) throws IOException;
+	// ImageTextDto extractTextFromImage2(MultipartFile file) throws IOException;
 	public Meal extractNutritionFromOCRText(ImageTextDto textDto);
 }

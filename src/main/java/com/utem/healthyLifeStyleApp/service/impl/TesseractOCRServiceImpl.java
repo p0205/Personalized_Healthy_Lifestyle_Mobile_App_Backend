@@ -27,10 +27,9 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 
 	final ImagePreprocessingService preprocessingService;
 
-	final TextDetectionService textDetectionService;
+	// final TextDetectionService textDetectionService;
 
 
-	
 	@Override
 	public ImageTextDto extractTextFromImage(MultipartFile file) throws IOException {
 	
@@ -60,34 +59,34 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 	                    .build();
 		}
 	}
-	public ImageTextDto extractTextFromImage2(MultipartFile file) throws IOException {
+	// public ImageTextDto extractTextFromImage2(MultipartFile file) throws IOException {
 	
-		nu.pattern.OpenCV.loadLocally();
+	// 	nu.pattern.OpenCV.loadLocally();
 
-		try {
-			// Perform OCR on the image
-			Mat image = preprocessingService.convertToGrayscale(file);
+	// 	try {
+	// 		// Perform OCR on the image
+	// 		Mat image = preprocessingService.convertToGrayscale(file);
 			
-					// Define a temporary file path
-			File tempFile = File.createTempFile("tempImage", ".png");
-			tempFile.deleteOnExit(); // Ensure the file is deleted when the program exits
+	// 				// Define a temporary file path
+	// 		File tempFile = File.createTempFile("tempImage", ".png");
+	// 		tempFile.deleteOnExit(); // Ensure the file is deleted when the program exits
 			
-			// Save the Mat image to the temporary file
-			Imgcodecs.imwrite(tempFile.getAbsolutePath(), image);
+	// 		// Save the Mat image to the temporary file
+	// 		Imgcodecs.imwrite(tempFile.getAbsolutePath(), image);
     
-			  String text = tesseract.doOCR(tempFile);
+	// 		  String text = tesseract.doOCR(tempFile);
 			  
-	            return ImageTextDto.builder()
-	                    .fileName(file.getOriginalFilename())
-	                    .text(text)
-	                    .build();
-		}catch(TesseractException e) {
-			   return ImageTextDto.builder()
-	                    .fileName(file.getOriginalFilename())
-	                    .text("")
-	                    .build();
-		}
-	}
+	//             return ImageTextDto.builder()
+	//                     .fileName(file.getOriginalFilename())
+	//                     .text(text)
+	//                     .build();
+	// 	}catch(TesseractException e) {
+	// 		   return ImageTextDto.builder()
+	//                     .fileName(file.getOriginalFilename())
+	//                     .text("")
+	//                     .build();
+	// 	}
+	// }
 
 	public Meal extractNutritionFromOCRText(ImageTextDto textDto){
 
@@ -106,7 +105,6 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		 
 		 if (servingSizeMatcher.find()) {
 			try {
-				System.out.println("Unit weight" + servingSizeMatcher.group(1));
 				food.setUnitWeight(Double.parseDouble((servingSizeMatcher.group(1).trim())));
 			} catch (Exception e) {
 				//set unit weight to null
@@ -118,7 +116,6 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		 Matcher caloriesMatcher = caloriesPattern.matcher(text);
 		 if (caloriesMatcher.find()) {
 			try {
-				System.out.println("calories" + caloriesMatcher.group(1));
 				food.setEnergyPer100g(Double.parseDouble((caloriesMatcher.group(1).trim())));
 			} catch (Exception e) {
 				//set unit weight to null
@@ -130,7 +127,6 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		 Matcher fatMatcher = fatPattern.matcher(text);
 		 if (fatMatcher.find()) {
 			try {
-				System.out.println("fat" + fatMatcher.group(1));
 				food.setFatPer100g(Double.parseDouble((fatMatcher.group(1).trim())));
 			} catch (Exception e) {
 				//set unit weight to null
@@ -143,7 +139,6 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		 Matcher carbsMatcher = carbPattern.matcher(text);
 		 if (carbsMatcher.find()) {
 			try {
-				System.out.println("carbs" + carbsMatcher.group(1));
 				food.setCarbsPer100g(Double.parseDouble(carbsMatcher.group(1).trim()));
 			} catch (Exception e) {
 				//set unit weight to null
@@ -155,7 +150,6 @@ public class TesseractOCRServiceImpl implements TesseractOCRService {
 		 Matcher proteinMatcher = proteinPattern.matcher(text);
 		 if (proteinMatcher.find()) {
 			try {
-				System.out.println("Protein" + proteinMatcher.group(1));
 				food.setProteinPer100g((Double.parseDouble(proteinMatcher.group(1).trim())));
 			} catch (Exception e) {
 				//set unit weight to null

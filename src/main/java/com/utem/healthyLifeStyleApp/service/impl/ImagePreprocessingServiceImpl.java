@@ -2,7 +2,6 @@ package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
 
     
-    final TextDetectionService textDetectionService;
+    // final TextDetectionService textDetectionService;
     final TableServiceImpl detector;
 
     
@@ -67,43 +66,41 @@ public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
         String fileExtension = getFileExtension(file);
         Mat image = convertMultipartFileToMat(file,fileExtension);
 
-        System.out.println(textDetectionService.detectText(image));
+        // System.out.println(textDetectionService.detectText(image));
 
         //crop the detected nutrition table(if any)
         Mat detectedTable  = detector.cropNutritionTable(image);
 
-        if(detectedTable == null){
-            System.out.println("no table is detected");
-        }
+        // if(detectedTable == null){
+        //     System.out.println("no table is detected");
+        // }
 
         //grayImage
         Mat grayImage = new Mat();
         Imgproc.cvtColor(detectedTable, grayImage, Imgproc.COLOR_BGRA2GRAY);
-        saveGrayScaleImage(grayImage,file.getOriginalFilename()+"grayImage");
 
         Mat horizontal = detectHorizontalLine(image);
-        saveGrayScaleImage(horizontal,file.getOriginalFilename()+"horizontal");
 
         return horizontal;
     }
     
 
-    private void saveGrayScaleImage(Mat grayscaleImage,String filename) throws IOException {
-        // Get the path to the resources directory
-        File resourceDirectory = new File("src/main/resources/grayScale");
+    // private void saveGrayScaleImage(Mat grayscaleImage,String filename) throws IOException {
+    //     // Get the path to the resources directory
+    //     File resourceDirectory = new File("src/main/resources/grayScale");
     
-        // Ensure the directory exists
-        if (!resourceDirectory.exists()) {
-            resourceDirectory.mkdirs(); // Create the directory if it doesn't exist
-        }
+    //     // Ensure the directory exists
+    //     if (!resourceDirectory.exists()) {
+    //         resourceDirectory.mkdirs(); // Create the directory if it doesn't exist
+    //     }
     
-        // Define the full path for the output image
-        String outputPath = new File(resourceDirectory, filename+".jpg").getAbsolutePath();
+    //     // Define the full path for the output image
+    //     String outputPath = new File(resourceDirectory, filename+".jpg").getAbsolutePath();
     
-        // Save the image using OpenCV
-        boolean isSaved = Imgcodecs.imwrite(outputPath, grayscaleImage);
+    //     // Save the image using OpenCV
+    //     boolean isSaved = Imgcodecs.imwrite(outputPath, grayscaleImage);
 
-    }
+    // }
 
     public Mat detectHorizontalLines(Mat source) {
         // Create binary image (assuming source is grayscale)
@@ -157,29 +154,28 @@ public class ImagePreprocessingServiceImpl implements ImagePreprocessingService{
     }
 
 
-    private Mat detectLines(Mat grayScale) throws IOException{
-        Mat bw = new Mat();
-        // Imgproc.threshold(grayScale, bw, 0, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C + Imgproc.THRESH_BINARY);
-        Imgproc.threshold(grayScale, bw, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+    // private Mat detectLines(Mat grayScale) throws IOException{
+    //     Mat bw = new Mat();
+    //     // Imgproc.threshold(grayScale, bw, 0, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C + Imgproc.THRESH_BINARY);
+    //     Imgproc.threshold(grayScale, bw, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
 
-        saveGrayScaleImage(bw, "bw");
+    //     saveGrayScaleImage(bw, "bw");
 
-        Mat horizontal = bw.clone();
-        // Specify size on horizontal axis
-        int horizontal_size = horizontal.cols() / 30;
-        // Create structure element for extracting horizontal lines through morphology operations
-        Mat horizontalKernel = Imgproc.getStructuringElement(
-            Imgproc.MORPH_RECT, 
-            new Size(horizontal_size, 1)
-        );
+    //     Mat horizontal = bw.clone();
+    //     // Specify size on horizontal axis
+    //     int horizontal_size = horizontal.cols() / 30;
+    //     // Create structure element for extracting horizontal lines through morphology operations
+    //     Mat horizontalKernel = Imgproc.getStructuringElement(
+    //         Imgproc.MORPH_RECT, 
+    //         new Size(horizontal_size, 1)
+    //     );
 
-        // Apply morphology operations
-        // Extract vertical lines
-        Imgproc.erode(horizontal, horizontal, horizontalKernel,new Point(-1,-1));
-        Imgproc.dilate(horizontal, horizontal, horizontalKernel, new Point(-1,-1));
-        saveGrayScaleImage(horizontal, "extracted_horizontal_Line");
-        return horizontal;
-    }
+    //     // Apply morphology operations
+    //     // Extract vertical lines
+    //     Imgproc.erode(horizontal, horizontal, horizontalKernel,new Point(-1,-1));
+    //     Imgproc.dilate(horizontal, horizontal, horizontalKernel, new Point(-1,-1));
+    //     return horizontal;
+    // }
 
     private Mat detectHorizontalLine(Mat originalMat){
         Mat grayImage = new Mat();

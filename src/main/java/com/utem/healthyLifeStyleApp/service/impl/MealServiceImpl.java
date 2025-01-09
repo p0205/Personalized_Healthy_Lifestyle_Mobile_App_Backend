@@ -130,6 +130,7 @@ public class MealServiceImpl implements MealService{
 
 		NutritionalSummaryDTO summaryDTO = NutritionalSummaryDTO.builder()
 																	.date(date)
+																	.caloriesIntake(totalCalories)
 																	.caloriesLeft(caloriesLeft)
 																	.carbsIntake(totalCarbs)
 																	.proteinIntake(totalProtein)

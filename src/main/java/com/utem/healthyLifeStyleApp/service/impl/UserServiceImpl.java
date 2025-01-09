@@ -27,4 +27,15 @@ public class UserServiceImpl implements UserService{
 			return null;
 		return mapper.toDTO(user.get());
 	}
+	
+	public boolean updateFirstLoginStatus(Integer id, Boolean isFirstLogin) {
+		Optional<User> userOptional = userRepo.findById(id);
+		if (userOptional.isPresent()) {
+			User user = userOptional.get();
+			user.setIsFirstLogin(isFirstLogin); // Update based on frontend input
+			userRepo.save(user);
+			return true;
+		}
+		return false;
+    }
 }

@@ -15,6 +15,7 @@ public class NutritionalSummaryDTO {
 
     private LocalDate date;
     private double caloriesLeft;
+    private double caloriesIntake;
     private double carbsIntake;
     private double proteinIntake;
     private double fatIntake;

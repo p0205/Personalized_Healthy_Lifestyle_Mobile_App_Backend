@@ -37,19 +37,19 @@ public class User {
 	@Column(nullable = true)
 	private String name;
 
-	@Column(nullable = false)
+
 	private String occupationType;
 
-	@Column(nullable = false)
+
 	private String occupationTime;
 
-	@Column(nullable = false)
+
 	private String healthHistory;
 
-	@Column(nullable = false)
+
 	private String areaOfLiving;
 
-	@Column(nullable = false)
+
 	private Integer noOfFamilyMember;
 
 	@Column(nullable = false)
@@ -58,7 +58,10 @@ public class User {
 	@Column(nullable = false)
 	private Double height;
 
-	@Column(nullable = false)
+	
 	private Integer goalCalories; //daily calories set by user
 	
+	@Column(nullable = false)
+	private Boolean isFirstLogin;
+
 }

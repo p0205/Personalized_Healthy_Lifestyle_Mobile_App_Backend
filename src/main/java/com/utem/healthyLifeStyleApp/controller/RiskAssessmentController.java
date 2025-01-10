@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,14 +60,21 @@ public class RiskAssessmentController {
 		}
 	}
 
-	@GetMapping("/riskLevel/{healthTestId}")
-	public ResponseEntity<List<RiskLevel>> getRiskLevelsByHealthTestId(@PathVariable Integer healthTestId) {
-		List<RiskLevel> levels = riskAssessmentService.getRiskLevelsByHealthTestId(healthTestId);
-		if (levels.isEmpty()) {
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok(levels);
+	@GetMapping("/riskLevel/{healthTestId}/{score}")
+	public ResponseEntity<String> getRiskLevelsByHealthTestId(@PathVariable ("healthTestId") Integer healthTestId, @PathVariable("score") double score) {
+		return ResponseEntity.ok(riskAssessmentService.determineRiskLevel(score, healthTestId));
 	}
+
+    @GetMapping("/ai/suggestions/{userId}")
+	public ResponseEntity<String> getRiskLevelsByHealthTestId( @PathVariable("userId") Integer userId, @RequestParam String testName) {
+        String encodedPrompt = geminiAIService.generateRecommendationsPrompt(testName, "high", userId);
+        String response =  chatClient
+                            .prompt(encodedPrompt)
+                            .call()
+                            .content();
+		return ResponseEntity.ok(response);
+	}
+
 	//  @GetMapping("/questions/{healthTestId}")
     // public ResponseEntity<List<RiskAssessmentQuestionDTO>> getQuestionsByHealthTestId(@PathVariable Integer healthTestId) {
     //     List<RiskAssessmentQuestionDTO> questions = riskAssessmentService.getQuestionsWithConditionsByTestId(healthTestId);

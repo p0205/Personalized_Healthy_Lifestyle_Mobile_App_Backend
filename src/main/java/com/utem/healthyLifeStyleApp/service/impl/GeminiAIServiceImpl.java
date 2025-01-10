@@ -31,15 +31,11 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
 
     RiskAssessmentUserDTO userDTO = userService.getUserBasicInfoById(userId);
 	
-
     // Fetch questions
     List<RiskAssessmentQuestionDTO> questionDTOs = riskAssessmentService.getQuestionsWithConditionsByTestId(healthId);
-    // List<String> questions = questionDTOs.stream()
-    //                                      .map(RiskAssessmentQuestionDTO::getQuestion)
-    //                                      .collect(Collectors.toList());
 
     // Construct the prompt
-    StringBuilder text = new StringBuilder("You are an intelligent assistant for tailoring health assessments. Analyze the user's profile and the health test questions to optimize the assessment process.\n\n");
+    StringBuilder text = new StringBuilder("You are an intelligent assistant to provide tailored suggestions based on the final risk level:\n\n");
 
     // Add user profile information
     text.append("**User Profile:**\n");
@@ -72,18 +68,21 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
 		text.append("}\n\n");
     }
 
-		text.append("\n**Requirements:**\n");
-		text.append("- For each question, decide whether to:\n");
-		text.append("  1. Answer it using the user's profile data, choose one matched condition from the conditions. (mark as \"isSkipped\": false, \"answer\": (option chosen) and calculate its score based on the score of chosen condition times with its weight).\n");
-		text.append("  2. Retain it for user input (mark as \"isSkipped\": false, with \"score\": null).\n");
-		text.append("  3. Skip it entirely because it is irrelevant (mark as \"isSkipped\": true, with \"score\": null).\n");
-		text.append("- Only irrelevant questions should be marked as skipped (\"isSkipped\": true).\n");
-		text.append("- Return the filtered question list with fields: { \"id\", \"isSkipped\", \"score\" }.\n");
-		text.append("- Provide a separate field for the calculatedScore (sum of scores for AI-answered questions only).\n");
-		text.append("- Return response strictly in JSON format only. Do not include explanations or any text outside of the JSON response.Do not wrap the json codes in JSON markers\n");
-		
+        text.append("\n**Requirements:**\n");
+        text.append("- For each question, decide whether to:\n");
+        text.append("  1. Answer it using the user's profile data, choose one matched condition from the conditions (mark as \"isSkipped\": false, \"answer\": (option chosen), and calculate its score based on the score of the chosen condition multiplied by its weight).\n");
+        text.append("  2. Retain it for user input (mark as \"isSkipped\": false, with \"score\": null).\n");
+        text.append("  3. Skip it entirely because it is irrelevant (mark as \"isSkipped\": true, with \"score\": null).\n");
+        text.append("- For skipped questions (\"isSkipped\": true), assign a penalty score using this logic:\n");
+        text.append("  - Use the median score of the possible conditions for the question.\n");
+        text.append("- Include the penalty score in the final calculatedScore.\n");
+        text.append("- Only irrelevant questions should be marked as skipped (\"isSkipped\": true).\n");
+        text.append("- Return the filtered question list with fields: { \"id\", \"isSkipped\", \"score\" }.\n");
+        text.append("- Provide a separate field for the calculatedScore (sum of scores for AI-answered questions plus penalties for skipped questions).\n");
+        text.append("- Return response strictly in JSON format only..\n");
+        text.append("- MUST NOT wrap the JSON codes in JSON markers\n");
 
-		text.append("\n**Response Format (JSON only):**\n");
+		text.append("\n**Response Format (JSON only):**\n You must not include explanations or any text outside of the JSON response. You must not wrap the JSON codes in JSON markers");
 		text.append("{\n");
 		text.append("  \"questions\": [\n");
 		text.append("    { \"id\": 1, \"isSkipped\": false, \"answer\": \"BMI < 25\", \"score\": 2 },\n");
@@ -100,32 +99,62 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
 
 
 
-	public String generateRecommendationsPrompt(String testName, int score, String riskLevel, Map<String, Object> userProfile) {
+	public String generateRecommendationsPrompt(String testName, String riskLevel, Integer userId) {
         // Create a JSON payload
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonPayload = "";
-        try {
-            Map<String, Object> payload = Map.of(
-                "testDetails", Map.of(
-                    "testName", testName,
-                    "score", score,
-                    "riskLevel", riskLevel
-                ),
-                "userProfile", userProfile,
-                "requirements", Map.of(
-                    "actionableRecommendations", "Provide 2-3 actionable recommendations in categories such as Diet, Exercise, or Lifestyle.",
-                    "motivationalMessage", "Include a motivational encouragement message to promote positive engagement.",
-                    "practicalSuggestions", "Ensure suggestions are practical and personalized to the user profile."
-                )
-            );
+       
+        RiskAssessmentUserDTO userDTO = userService.getUserBasicInfoById(userId);
+        StringBuilder text = new StringBuilder("You are an intelligent assistant for tailoring health assessments. Analyze the user's profile and the health test questions to optimize the assessment process.\n\n");
 
-            jsonPayload = objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error encoding JSON payload", e);
-        }
+        text.append("**User Profile:**\n");
+        text.append("{\n");
+        text.append("  \"name\": \"").append(userDTO.getName()).append("\",\n");
+        text.append("  \"gender\": \"").append(userDTO.getGender()).append("\",\n");
+        text.append("  \"age\": ").append(userDTO.getAge()).append(",\n");
+        text.append("  \"weight\": ").append(userDTO.getWeight()).append(",\n");
+        text.append("  \"height\": ").append(userDTO.getHeight()).append(",\n");
+        text.append("  \"BMI\": ").append(userDTO.getBmi()).append(",\n");
+        text.append("  \"occupationType\": \"").append(userDTO.getOccupationType()).append("\",\n");
+        text.append("  \"healthHistory\": \"").append(userDTO.getHealthHistory()).append("\"\n");
+        text.append("}\n\n");
 
-		System.out.println("?prompt=" + URLEncoder.encode(jsonPayload, StandardCharsets.UTF_8));
+        text.append("**Health Test Information:**\n");
+        text.append("{\n");
+        text.append("  \"healthTestName\": \"").append(testName).append("\",\n");
+        text.append("  \"finalRiskLevel\": \"").append(riskLevel).append("\",\n");
+        text.append("}\n\n");
+
+        text.append("**Task:**\n");
+        text.append("Analyze the user's profile information and the results of their health test. Based on the final risk level (Low Risk, Moderate Risk, High Risk) and their total score, generate personalized health recommendations. These suggestions should be structured and actionable, covering the following categories: Exercise, Diet, and Health Checkups.\n");
+        text.append("- MUST NOT wrap the JSON codes in JSON markers\n");
+        // text.append("For each risk level, provide relevant suggestions:\n");
+        // text.append("1. **Low Risk:**\n");
+        // text.append("   - Exercise: [Provide recommendations based on their current health status.]\n");
+        // text.append("   - Diet: [Provide dietary suggestions to maintain good health.]\n");
+        // text.append("   - Health Checkups: [Offer guidance on maintaining regular health checkups.]\n");
+
+        // text.append("2. **Moderate Risk:**\n");
+        // text.append("   - Exercise: [Suggest lifestyle changes such as increasing physical activity.]\n");
+        // text.append("   - Diet: [Recommend dietary changes like reducing sodium intake or increasing fiber.]\n");
+        // text.append("   - Health Checkups: [Encourage regular medical checkups to monitor health.]\n");
+
+        // text.append("3. **High Risk:**\n");
+        // text.append("   - Exercise: [Provide exercise recommendations focusing on weight management or improving cardiovascular health.]\n");
+        // text.append("   - Diet: [Suggest a stricter dietary plan to address issues like high cholesterol, high blood pressure, etc.]\n");
+        // text.append("   - Health Checkups: [Recommend seeking medical advice and regularly monitoring critical health parameters.]\n");
+
+        text.append("Provide clear, actionable steps for each category. Make sure the advice is personalized and addresses the user’s health history, current condition, and risk level.\n");
+
+		text.append("\n**Response Format (JSON only):**\n You must not include explanations or any text outside of the JSON response. Do not wrap the JSON codes in JSON markers");
+        text.append("{\n");
+        text.append("  \"recommendations\": {\n");
+        text.append("    \"exercise\": \"[Exercise recommendations based on risk level]\",\n");
+        text.append("    \"diet\": \"[Dietary suggestions based on risk level]\",\n");
+        text.append("    \"healthCheckups\": \"[Health checkup recommendations based on risk level]\"\n");
+        text.append("  }\n");
+        text.append("}\n");
+
+		System.out.println("?prompt=" + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8));
         // Encode the JSON payload for URL
-        return  "?prompt=" + URLEncoder.encode(jsonPayload, StandardCharsets.UTF_8); 
+        return  "?prompt=" + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8); 
     }
 }

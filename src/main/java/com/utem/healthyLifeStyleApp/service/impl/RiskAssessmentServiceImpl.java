@@ -82,7 +82,8 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
         return riskLevelRepo.findByHealthTest_Id(healthTestId);
     }
 
-    public String determineRiskLevel(double score, List<RiskLevel> riskLevels) {
+    public String determineRiskLevel(double score, Integer healthTestId) {
+        List<RiskLevel> riskLevels = getRiskLevelsByHealthTestId(healthTestId);
         // Compare the score with predefined risk levels
         for (RiskLevel level : riskLevels) {
             if (score >= level.getScoreMin() && score <= level.getScoreMax()) {
@@ -118,5 +119,6 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
     //     haiku should start with the word cat obligatory""";
 
     // private final AiClient aiClent;
+    
 
 }

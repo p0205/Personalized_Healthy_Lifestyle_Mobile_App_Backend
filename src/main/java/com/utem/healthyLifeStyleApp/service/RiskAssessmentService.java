@@ -22,5 +22,7 @@ public interface RiskAssessmentService {
 
      public List<RiskLevel> getRiskLevelsByHealthTestId(Integer healthTestId);
 
-     public String determineRiskLevel(double score, List<RiskLevel> riskLevels);
+     public String determineRiskLevel(double score, Integer healthTestId);
+
+     
 }

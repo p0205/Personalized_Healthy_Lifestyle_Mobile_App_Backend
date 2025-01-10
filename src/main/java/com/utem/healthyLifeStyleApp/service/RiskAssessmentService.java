@@ -1,7 +1,6 @@
 package com.utem.healthyLifeStyleApp.service;
 
 import java.util.List;
-import java.util.Map;
 
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;

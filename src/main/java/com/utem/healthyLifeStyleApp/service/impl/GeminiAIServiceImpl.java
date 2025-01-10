@@ -2,15 +2,9 @@ package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentQuestionDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentUserDTO;
 import com.utem.healthyLifeStyleApp.service.GeminiAIService;
@@ -153,7 +147,6 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
 
         text.append("}\n");
 
-		System.out.println("?prompt=" + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8));
         // Encode the JSON payload for URL
         return  "?prompt=" + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8); 
     }

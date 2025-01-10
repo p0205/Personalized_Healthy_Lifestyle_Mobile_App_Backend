@@ -1,8 +1,6 @@
 package com.utem.healthyLifeStyleApp.controller;
 
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
 import com.utem.healthyLifeStyleApp.model.HealthTest;
-import com.utem.healthyLifeStyleApp.model.RiskLevel;
 import com.utem.healthyLifeStyleApp.service.GeminiAIService;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
 
@@ -70,8 +67,8 @@ public class RiskAssessmentController {
 	}
 
     @GetMapping("/ai/suggestions/{userId}")
-	public ResponseEntity<String> getRiskLevelsByHealthTestId( @PathVariable("userId") Integer userId, @RequestParam String testName) {
-        String encodedPrompt = geminiAIService.generateRecommendationsPrompt(testName, "high", userId);
+	public ResponseEntity<String> getRiskLevelsByHealthTestId( @PathVariable("userId") Integer userId, @RequestParam String testName, @RequestParam String riskLevel) {
+        String encodedPrompt = geminiAIService.generateRecommendationsPrompt(testName, riskLevel, userId);
         String response =  chatClient
                             .prompt(encodedPrompt)
                             .call()
@@ -118,42 +115,6 @@ public class RiskAssessmentController {
     // }
 
 
-
-	@GetMapping("/ai/suggestions/{testName}/{score}/{riskLevel}")
-	public String generateRecommendations(String testName, int score, List<String> riskLevel, Map<String, Object> userProfile) {
-        // // Create a JSON payload
-        // ObjectMapper objectMapper = new ObjectMapper();
-        // String jsonPayload = "";
-        // try {
-        //     Map<String, Object> payload = Map.of(
-        //         "testDetails", Map.of(
-        //             "testName", testName,
-        //             "score", score,
-        //             "riskLevel", riskLevel
-        //         ),
-        //         "userProfile", userProfile,
-        //         "requirements", Map.of(
-        //             "actionableRecommendations", "Provide 2-3 actionable recommendations in categories such as Diet, Exercise, or Lifestyle.",
-        //             "motivationalMessage", "Include a motivational encouragement message to promote positive engagement.",
-        //             "practicalSuggestions", "Ensure suggestions are practical and personalized to the user profile."
-        //         )
-        //     );
-
-        //     jsonPayload = objectMapper.writeValueAsString(payload);
-        // } catch (JsonProcessingException e) {
-        //     throw new RuntimeException("Error encoding JSON payload", e);
-        // }
-
-    //     // Encode the JSON payload for URL
-    //     String encodedPrompt = "?prompt=" + URLEncoder.encode(jsonPayload, StandardCharsets.UTF_8);
-
-    //     // Call the AI service and return the response
-    //     return chatClient
-    //             .prompt(geminiAIService.generateRecommendationsPrompt())
-    //             .call()
-    //            .content();
-	return null;
-    }
 
 
 }

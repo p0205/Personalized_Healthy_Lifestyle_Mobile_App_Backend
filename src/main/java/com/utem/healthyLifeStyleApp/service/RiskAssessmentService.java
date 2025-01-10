@@ -1,10 +1,12 @@
 package com.utem.healthyLifeStyleApp.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentQuestionDTO;
+import com.utem.healthyLifeStyleApp.model.HealthTest;
 import com.utem.healthyLifeStyleApp.model.RiskLevel;
 
 public interface RiskAssessmentService {
@@ -16,6 +18,8 @@ public interface RiskAssessmentService {
 
     // public List<RiskAssessmentScoringRules> getRiskAssessmentScoringRulesByQuestionId(Integer questionId);
 
+    public List<HealthTest> getAllTestType();
+    
      public List<RiskAssessmentQuestionDTO> getQuestionsWithConditionsByTestId(Integer healthTestId);
 
     public FilteredHeatlhTestDTO processAIResponse(AIResponseDTO aiResponse);

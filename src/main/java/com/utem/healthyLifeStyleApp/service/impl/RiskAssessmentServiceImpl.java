@@ -1,6 +1,7 @@
 package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -10,8 +11,10 @@ import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentConditionDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentQuestionDTO;
+import com.utem.healthyLifeStyleApp.model.HealthTest;
 import com.utem.healthyLifeStyleApp.model.RiskAssessmentQuestion;
 import com.utem.healthyLifeStyleApp.model.RiskLevel;
+import com.utem.healthyLifeStyleApp.repo.HealthTestRepo;
 import com.utem.healthyLifeStyleApp.repo.RiskAssessmentQuestionRepo;
 import com.utem.healthyLifeStyleApp.repo.RiskLevelRepo;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
@@ -25,6 +28,7 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
     // private final HealthTestRepo healthTestRepo;
     private final RiskAssessmentQuestionRepo riskAssessmentQuestionRepo;
     private final RiskLevelRepo riskLevelRepo;
+    private final HealthTestRepo healthTestRepo;
     // private final RiskAssessmentScoringRulesRepo riskAssessmentScoringRulesRepo;
     
     // @Override
@@ -112,6 +116,11 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
                                     .questions(filteredQuestions)
                                     .build();
         return dto;
+    }
+
+    @Override
+    public List<HealthTest> getAllTestType() {
+        return healthTestRepo.findAll();
     }
 
     // public static final String WRITE_ME_HAIKU_ABOUT_CAT = """

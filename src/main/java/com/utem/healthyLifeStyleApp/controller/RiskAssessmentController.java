@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
+import com.utem.healthyLifeStyleApp.model.HealthTest;
 import com.utem.healthyLifeStyleApp.model.RiskLevel;
 import com.utem.healthyLifeStyleApp.service.GeminiAIService;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
@@ -37,7 +38,10 @@ public class RiskAssessmentController {
 	private final GeminiAIService geminiAIService;
 	private final ChatClient chatClient;
 
-
+    @GetMapping("/riskAssessment/test")
+	public ResponseEntity<List<HealthTest>> getAllTestType() {
+		return ResponseEntity.ok(riskAssessmentService.getAllTestType());
+	}
 
 	
 	@GetMapping("/ai/filter-questions/{userId}/{healthId}")

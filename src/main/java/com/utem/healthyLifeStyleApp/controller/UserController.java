@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.utem.healthyLifeStyleApp.dto.RiskAssessmentUserDTO;
 import com.utem.healthyLifeStyleApp.dto.UserDTO;
 import com.utem.healthyLifeStyleApp.service.impl.UserServiceImpl;
 
@@ -33,7 +34,7 @@ public class UserController {
 		 return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id).getWeight());
 	 }
 
-	 @PatchMapping("/{id}/first-login")
+	@PatchMapping("/{id}/first-login")
 	public ResponseEntity<Void> setFirstLogin(@PathVariable("id") Integer id, @RequestBody Map<String, Boolean> payload) {
 		Boolean isFirstLogin = payload.get("isFirstLogin");
 		if (isFirstLogin == null) {
@@ -45,6 +46,11 @@ public class UserController {
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+	}
+
+	@GetMapping("/{id}/riskAssessment")
+	public ResponseEntity<RiskAssessmentUserDTO> get(@PathVariable("id") Integer id) {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.getUserBasicInfoById(id));
 	}
 
 }

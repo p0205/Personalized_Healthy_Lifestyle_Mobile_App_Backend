@@ -146,11 +146,11 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
 
 		text.append("\n**Response Format (JSON only):**\n You must not include explanations or any text outside of the JSON response. Do not wrap the JSON codes in JSON markers");
         text.append("{\n");
-        text.append("  \"recommendations\": {\n");
+
         text.append("    \"exercise\": \"[Exercise recommendations based on risk level]\",\n");
         text.append("    \"diet\": \"[Dietary suggestions based on risk level]\",\n");
         text.append("    \"healthCheckups\": \"[Health checkup recommendations based on risk level]\"\n");
-        text.append("  }\n");
+
         text.append("}\n");
 
 		System.out.println("?prompt=" + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8));

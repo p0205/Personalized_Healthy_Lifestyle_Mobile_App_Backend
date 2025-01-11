@@ -2,6 +2,7 @@ package com.utem.healthyLifeStyleApp.controller;
 
 import java.util.List;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
+import com.utem.healthyLifeStyleApp.dto.UserScoreDTO;
 import com.utem.healthyLifeStyleApp.model.HealthTest;
+import com.utem.healthyLifeStyleApp.model.UserScore;
 import com.utem.healthyLifeStyleApp.service.GeminiAIService;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
 
@@ -55,26 +58,46 @@ public class RiskAssessmentController {
 
 		try {
 			AIResponseDTO aiResponse = objectMapper.readValue(response, AIResponseDTO.class);
+            System.out.println("response: " + aiResponse.toString());
 			return ResponseEntity.ok(riskAssessmentService.processAIResponse(aiResponse));
 		} catch (Exception e) {
 			throw new RuntimeException("Error parsing AI response", e);
 		}
 	}
 
-	@GetMapping("/riskLevel/{healthTestId}/{score}")
-	public ResponseEntity<String> getRiskLevelsByHealthTestId(@PathVariable ("healthTestId") Integer healthTestId, @PathVariable("score") double score) {
-		return ResponseEntity.ok(riskAssessmentService.determineRiskLevel(score, healthTestId));
-	}
+	// @GetMapping("/riskLevel/{healthTestId}/{score}")
+	// public ResponseEntity<String> getRiskLevelsByHealthTestId(@PathVariable ("healthTestId") Integer healthTestId, @PathVariable("score") double score) {
+        
+	// 	return ResponseEntity.ok(riskAssessmentService.determineRiskLevel(score, healthTestId));
+	// }
 
-    @GetMapping("/ai/suggestions/{userId}")
-	public ResponseEntity<String> getRiskLevelsByHealthTestId( @PathVariable("userId") Integer userId, @RequestParam String testName, @RequestParam String riskLevel) {
+    @GetMapping("/ai/suggestions/{userId}/{healthTestId}")
+	public ResponseEntity<String> getRiskLevelsByHealthTestId( @PathVariable("userId") Integer userId,@PathVariable("healthTestId") Integer healthTestId, @RequestParam int score) {
+        String riskLevel = riskAssessmentService.determineRiskLevel(score, healthTestId);
+        String testName = riskAssessmentService.getHealthTestById(healthTestId).getDiseaseName();
         String encodedPrompt = geminiAIService.generateRecommendationsPrompt(testName, riskLevel, userId);
         String response =  chatClient
                             .prompt(encodedPrompt)
                             .call()
                             .content();
+        //save to database
+        try {
+            riskAssessmentService.saveUserScore(userId, healthTestId, score, response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving data");
+        }
+        // System.out.println("response: " + response);
 		return ResponseEntity.ok(response);
 	}
+
+    @GetMapping("/user-score/{userId}/{healthTestId}")
+    public ResponseEntity<UserScoreDTO> getUserScore(@PathVariable Integer userId, @PathVariable Integer healthTestId) {
+        UserScoreDTO userScore = riskAssessmentService.getUserScore(userId, healthTestId);
+        if (userScore == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userScore);
+    }
 
 	//  @GetMapping("/questions/{healthTestId}")
     // public ResponseEntity<List<RiskAssessmentQuestionDTO>> getQuestionsByHealthTestId(@PathVariable Integer healthTestId) {

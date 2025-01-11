@@ -5,8 +5,10 @@ import java.util.List;
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentQuestionDTO;
+import com.utem.healthyLifeStyleApp.dto.UserScoreDTO;
 import com.utem.healthyLifeStyleApp.model.HealthTest;
 import com.utem.healthyLifeStyleApp.model.RiskLevel;
+import com.utem.healthyLifeStyleApp.model.UserScore;
 
 public interface RiskAssessmentService {
     
@@ -26,6 +28,12 @@ public interface RiskAssessmentService {
      public List<RiskLevel> getRiskLevelsByHealthTestId(Integer healthTestId);
 
      public String determineRiskLevel(double score, Integer healthTestId);
+
+    public HealthTest getHealthTestById(Integer healthTestId);
+
+    public void saveUserScore(Integer userId, Integer healthTestId, int score, String response);
+
+    public UserScoreDTO getUserScore(Integer userId, Integer healthTestId);
 
      
 }

@@ -135,17 +135,21 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
         // text.append("   - Exercise: [Provide exercise recommendations focusing on weight management or improving cardiovascular health.]\n");
         // text.append("   - Diet: [Suggest a stricter dietary plan to address issues like high cholesterol, high blood pressure, etc.]\n");
         // text.append("   - Health Checkups: [Recommend seeking medical advice and regularly monitoring critical health parameters.]\n");
-
         text.append("Provide clear, actionable steps for each category. Make sure the advice is personalized and addresses the user’s health history, current condition, and risk level.\n");
 
-		text.append("\n**Response Format (JSON only):**\n You must not include explanations or any text outside of the JSON response. Do not wrap the JSON codes in JSON markers");
+        text.append("\n**Response Format (JSON only):**\n You must not include explanations or any text outside of the JSON response. Do not wrap the JSON codes in JSON markers");
         text.append("{\n");
-
-        text.append("    \"exercise\": \"[Exercise recommendations based on risk level]\",\n");
-        text.append("    \"diet\": \"[Dietary suggestions based on risk level]\",\n");
-        text.append("    \"healthCheckups\": \"[Health checkup recommendations based on risk level]\"\n");
-
+        
+        text.append("    \"riskLevel\": \"[Risk level]\",\n");
+        
+        text.append("    \"suggestions\": {\n");
+        text.append("        \"exercise\": \"[Exercise recommendations based on risk level]\",\n");
+        text.append("        \"diet\": \"[Dietary suggestions based on risk level]\",\n");
+        text.append("        \"healthCheckups\": \"[Health checkup recommendations based on risk level]\"\n");
+        text.append("    }\n");
+        
         text.append("}\n");
+        
 
         // Encode the JSON payload for URL
         return  "?prompt=" + URLEncoder.encode(text.toString(), StandardCharsets.UTF_8); 

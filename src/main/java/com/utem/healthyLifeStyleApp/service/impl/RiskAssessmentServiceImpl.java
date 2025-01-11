@@ -1,22 +1,30 @@
 package com.utem.healthyLifeStyleApp.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentConditionDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentQuestionDTO;
+import com.utem.healthyLifeStyleApp.dto.UserScoreDTO;
 import com.utem.healthyLifeStyleApp.model.HealthTest;
 import com.utem.healthyLifeStyleApp.model.RiskAssessmentQuestion;
 import com.utem.healthyLifeStyleApp.model.RiskLevel;
+import com.utem.healthyLifeStyleApp.model.User;
+import com.utem.healthyLifeStyleApp.model.UserScore;
 import com.utem.healthyLifeStyleApp.repo.HealthTestRepo;
 import com.utem.healthyLifeStyleApp.repo.RiskAssessmentQuestionRepo;
 import com.utem.healthyLifeStyleApp.repo.RiskLevelRepo;
+import com.utem.healthyLifeStyleApp.repo.UserRepo;
+import com.utem.healthyLifeStyleApp.repo.UserScoreRepo;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +37,8 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
     private final RiskAssessmentQuestionRepo riskAssessmentQuestionRepo;
     private final RiskLevelRepo riskLevelRepo;
     private final HealthTestRepo healthTestRepo;
+    private final UserScoreRepo userScoreRepo;
+    private final UserRepo userRepo;
     // private final RiskAssessmentScoringRulesRepo riskAssessmentScoringRulesRepo;
     
     // @Override
@@ -123,11 +133,96 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
         return healthTestRepo.findAll();
     }
 
-    // public static final String WRITE_ME_HAIKU_ABOUT_CAT = """
-    //     Write me Haiku about cat,
-    //     haiku should start with the word cat obligatory""";
+    @Override
+    public HealthTest getHealthTestById(Integer healthTestId) {
+       return healthTestRepo.findById(healthTestId).orElse(null);
+    }
 
-    // private final AiClient aiClent;
-    
+    @Override
+    public void saveUserScore(Integer userId, Integer healthTestId, int score, String response) {
+        try {
+            // Assuming response is a JSON string
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response);
+            
+            String riskLevelFromResponse = rootNode.path("riskLevel").asText();
+            JsonNode suggestionsNode = rootNode.path("suggestions");
+
+            // Deserialize exercise, diet, and health checkups suggestions
+            List<String> exerciseSuggestions = parseSuggestions(suggestionsNode, "exercise");
+            List<String> dietSuggestions = parseSuggestions(suggestionsNode, "diet");
+            List<String> healthCheckups = parseSuggestions(suggestionsNode, "healthCheckups");
+
+
+            // Get the User and HealthTest entities
+            User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            HealthTest healthTest = healthTestRepo.findById(healthTestId).orElseThrow(() -> new RuntimeException("HealthTest not found"));
+
+            // Create the UserScore entity
+            UserScore userScore = UserScore.builder()
+                    .user(user)
+                    .healthTest(healthTest)
+                    .score(score)
+                    .riskLevel(riskLevelFromResponse)
+                    .healthCheckups(objectMapper.writeValueAsString(healthCheckups)) // Save List<String> as JSON string
+                    .exerciseSuggestions(objectMapper.writeValueAsString(exerciseSuggestions)) // Save List<String> as JSON string
+                    .dietSuggestions(objectMapper.writeValueAsString(dietSuggestions)) // Save List<String> as JSON string
+                    .build();
+
+            // Save the UserScore entity to the database
+            userScoreRepo.save(userScore);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error saving data", e);
+        }
+    }
+    // Helper method to handle both array and string cases
+    private List<String> parseSuggestions(JsonNode suggestionsNode, String key) {
+        JsonNode node = suggestionsNode.path(key);
+        List<String> suggestions = new ArrayList<>();
+        
+        if (node.isArray()) {
+            // Deserialize JSON array to List<String>
+            try {
+                suggestions = new ObjectMapper().readValue(node.toString(), new TypeReference<List<String>>() {});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (node.isTextual()) {
+            // If it's a string, add it to the list as a single item
+            suggestions.add(node.asText());
+        }
+        
+        return suggestions;
+    }
+
+    @Override
+    public UserScoreDTO getUserScore(Integer userId, Integer healthTestId) {
+        UserScore userScore = userScoreRepo.findByUser_IdAndHealthTest_Id(userId, healthTestId);
+        if(userScore == null)
+            return null;
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            List<String> healthCheckups = objectMapper.readValue(userScore.getHealthCheckups(), new TypeReference<List<String>>() {});
+            List<String> exerciseSuggestions = objectMapper.readValue(userScore.getExerciseSuggestions(), new TypeReference<List<String>>() {});
+            List<String> dietSuggestions = objectMapper.readValue(userScore.getDietSuggestions(), new TypeReference<List<String>>() {});
+
+            return UserScoreDTO.builder()
+                    .id(userScore.getId())
+                    .userId(userScore.getUser().getId())
+                    .healthTestId(userScore.getHealthTest().getId())
+                    .score(userScore.getScore())
+                    .riskLevel(userScore.getRiskLevel())
+                    .healthCheckups(healthCheckups)
+                    .exerciseSuggestions(exerciseSuggestions)
+                    .dietSuggestions(dietSuggestions)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error parsing data", e);
+        }
+    }
 
 }

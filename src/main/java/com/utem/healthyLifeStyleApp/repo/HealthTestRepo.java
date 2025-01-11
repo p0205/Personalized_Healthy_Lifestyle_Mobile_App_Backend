@@ -6,4 +6,5 @@ import com.utem.healthyLifeStyleApp.model.HealthTest;
 
 public interface HealthTestRepo extends JpaRepository<HealthTest,Integer>{
 
+ 
 }

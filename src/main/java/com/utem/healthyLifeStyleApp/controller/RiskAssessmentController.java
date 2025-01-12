@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
-import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
+import com.utem.healthyLifeStyleApp.dto.UserHealthTestStatus;
 import com.utem.healthyLifeStyleApp.dto.UserScoreDTO;
-import com.utem.healthyLifeStyleApp.model.HealthTest;
-import com.utem.healthyLifeStyleApp.model.UserScore;
 import com.utem.healthyLifeStyleApp.service.GeminiAIService;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
 
+import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,31 +38,67 @@ public class RiskAssessmentController {
 	private final GeminiAIService geminiAIService;
 	private final ChatClient chatClient;
 
-    @GetMapping("/riskAssessment/test")
-	public ResponseEntity<List<HealthTest>> getAllTestType() {
-		return ResponseEntity.ok(riskAssessmentService.getAllTestType());
+    // @GetMapping("/riskAssessment/test")
+	// public ResponseEntity<List<HealthTest>> getAllTestType() {
+	// 	return ResponseEntity.ok(riskAssessmentService.getAllTestType());
+	// }
+
+    @GetMapping("/riskAssessment/test/{userId}")
+	public ResponseEntity<List<UserHealthTestStatus>> getUserHealthTestStatus(@PathVariable("userId") Integer userId) {
+
+        return ResponseEntity.ok(riskAssessmentService.getUserHealthTestStatus(userId));
+
 	}
 
 	
 	@GetMapping("/ai/filter-questions/{userId}/{healthId}")
-	public ResponseEntity<FilteredHeatlhTestDTO> filterQuestion(@PathVariable("userId") Integer userId, @PathVariable("healthId") Integer healthId) {
+	public ResponseEntity<?> filterQuestion(@PathVariable("userId") Integer userId, @PathVariable("healthId") Integer healthId) {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		String encodedPrompt = geminiAIService.filterQuestionsPrompt(userId, healthId);
 
-		// Send the request to the AI client and return the response
-		String response =  chatClient
-				.prompt(encodedPrompt)
-				.call()
-				.content();
+		
 
 		try {
-			AIResponseDTO aiResponse = objectMapper.readValue(response, AIResponseDTO.class);
-            System.out.println("response: " + aiResponse.toString());
-			return ResponseEntity.ok(riskAssessmentService.processAIResponse(aiResponse));
-		} catch (Exception e) {
-			throw new RuntimeException("Error parsing AI response", e);
-		}
+            // Send the request to the AI client and return the response
+            String response =  chatClient
+            .prompt(encodedPrompt)
+            .call()
+            .content();
+            AIResponseDTO aiResponse;
+            try {
+                aiResponse = objectMapper.readValue(response, AIResponseDTO.class);
+            } catch (JsonProcessingException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                     .body("Error processing AI response.");
+            }
+            // System.out.println("response: " + aiResponse.toString());
+            return ResponseEntity.ok(riskAssessmentService.processAIResponse(aiResponse));
+            } catch (StatusRuntimeException e) {
+           
+            // Handle resource exhaustion error (quota exceeded)
+            if (e.getStatus().getCode() == io.grpc.Status.Code.RESOURCE_EXHAUSTED) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                    .body("Quota exceeded for AI platform. Please try again later.");
+            }
+            
+            // Handle any other general errors
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                .body("Error generating content. Please try again later.");
+        } catch (RuntimeException e) {
+          
+            if (e.getMessage().contains("Failed to generate content")) {
+              
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                    .body("Quota exceeded for AI platform. Please try again later.");
+            }
+
+            // Handle any other unexpected runtime exceptions
+           
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Unexpected error occurred. Please try again later.");
+        
+        }
 	}
 
 	// @GetMapping("/riskLevel/{healthTestId}/{score}")
@@ -76,21 +112,43 @@ public class RiskAssessmentController {
         String riskLevel = riskAssessmentService.determineRiskLevel(score, healthTestId);
         String testName = riskAssessmentService.getHealthTestById(healthTestId).getDiseaseName();
         String encodedPrompt = geminiAIService.generateRecommendationsPrompt(testName, riskLevel, userId);
+        
+        try {
         String response =  chatClient
                             .prompt(encodedPrompt)
                             .call()
                             .content();
         //save to database
-        try {
-            riskAssessmentService.saveUserScore(userId, healthTestId, score, response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving data");
+        
+        riskAssessmentService.saveUserScore(userId, healthTestId, score, response);
+        return ResponseEntity.ok(response);
+        } catch (StatusRuntimeException e) {
+          
+        // Handle resource exhaustion error (quota exceeded)
+        if (e.getStatus().getCode() == io.grpc.Status.Code.RESOURCE_EXHAUSTED) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                 .body("Quota exceeded for AI platform. Please try again later.");
         }
-        // System.out.println("response: " + response);
-		return ResponseEntity.ok(response);
+        
+        // Handle any other general errors
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                             .body("Error generating content. Please try again later.");
+    } catch (RuntimeException e) {
+        if (e.getMessage().contains("Failed to generate content")) {
+           
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                 .body("Quota exceeded for AI platform. Please try again later.");
+        }
+
+        // Handle any other unexpected runtime exceptions
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Unexpected error occurred. Please try again later.");
+    
+    }
+		
 	}
 
-    @GetMapping("/user-score/{userId}/{healthTestId}")
+    @GetMapping("/riskAssessment/{userId}/{healthTestId}")
     public ResponseEntity<UserScoreDTO> getUserScore(@PathVariable Integer userId, @PathVariable Integer healthTestId) {
         UserScoreDTO userScore = riskAssessmentService.getUserScore(userId, healthTestId);
         if (userScore == null) {

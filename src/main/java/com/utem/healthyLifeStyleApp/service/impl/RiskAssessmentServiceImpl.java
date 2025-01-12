@@ -2,6 +2,7 @@ package com.utem.healthyLifeStyleApp.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -14,16 +15,16 @@ import com.utem.healthyLifeStyleApp.dto.AIResponseDTO;
 import com.utem.healthyLifeStyleApp.dto.FilteredHeatlhTestDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentConditionDTO;
 import com.utem.healthyLifeStyleApp.dto.RiskAssessmentQuestionDTO;
+import com.utem.healthyLifeStyleApp.dto.UserHealthTestStatus;
 import com.utem.healthyLifeStyleApp.dto.UserScoreDTO;
 import com.utem.healthyLifeStyleApp.model.HealthTest;
 import com.utem.healthyLifeStyleApp.model.RiskAssessmentQuestion;
 import com.utem.healthyLifeStyleApp.model.RiskLevel;
-import com.utem.healthyLifeStyleApp.model.User;
+import com.utem.healthyLifeStyleApp.model.UserHealthTestKey;
 import com.utem.healthyLifeStyleApp.model.UserScore;
 import com.utem.healthyLifeStyleApp.repo.HealthTestRepo;
 import com.utem.healthyLifeStyleApp.repo.RiskAssessmentQuestionRepo;
 import com.utem.healthyLifeStyleApp.repo.RiskLevelRepo;
-import com.utem.healthyLifeStyleApp.repo.UserRepo;
 import com.utem.healthyLifeStyleApp.repo.UserScoreRepo;
 import com.utem.healthyLifeStyleApp.service.RiskAssessmentService;
 
@@ -38,7 +39,6 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
     private final RiskLevelRepo riskLevelRepo;
     private final HealthTestRepo healthTestRepo;
     private final UserScoreRepo userScoreRepo;
-    private final UserRepo userRepo;
     // private final RiskAssessmentScoringRulesRepo riskAssessmentScoringRulesRepo;
     
     // @Override
@@ -155,13 +155,16 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
 
 
             // Get the User and HealthTest entities
-            User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-            HealthTest healthTest = healthTestRepo.findById(healthTestId).orElseThrow(() -> new RuntimeException("HealthTest not found"));
+            // User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            // HealthTest healthTest = healthTestRepo.findById(healthTestId).orElseThrow(() -> new RuntimeException("HealthTest not found"));
 
+            UserHealthTestKey id = UserHealthTestKey.builder()
+                                    .userId(userId)
+                                    .healthTestId(healthTestId)
+                                    .build();
             // Create the UserScore entity
             UserScore userScore = UserScore.builder()
-                    .user(user)
-                    .healthTest(healthTest)
+                    .id(id)     
                     .score(score)
                     .riskLevel(riskLevelFromResponse)
                     .healthCheckups(objectMapper.writeValueAsString(healthCheckups)) // Save List<String> as JSON string
@@ -199,7 +202,7 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
 
     @Override
     public UserScoreDTO getUserScore(Integer userId, Integer healthTestId) {
-        UserScore userScore = userScoreRepo.findByUser_IdAndHealthTest_Id(userId, healthTestId);
+        UserScore userScore = userScoreRepo.findByIdUserIdAndIdHealthTestId(userId, healthTestId);
         if(userScore == null)
             return null;
         
@@ -209,20 +212,37 @@ public class RiskAssessmentServiceImpl implements RiskAssessmentService{
             List<String> exerciseSuggestions = objectMapper.readValue(userScore.getExerciseSuggestions(), new TypeReference<List<String>>() {});
             List<String> dietSuggestions = objectMapper.readValue(userScore.getDietSuggestions(), new TypeReference<List<String>>() {});
 
+            Map<String,List<String>> suggestions = Map.of(
+                "healthCheckups", healthCheckups,
+                "exercise", exerciseSuggestions,
+                "diet", dietSuggestions
+            );
             return UserScoreDTO.builder()
-                    .id(userScore.getId())
-                    .userId(userScore.getUser().getId())
-                    .healthTestId(userScore.getHealthTest().getId())
+                    .userId(userScore.getId().getUserId())
+                    .healthTestId(userScore.getId().getHealthTestId())
                     .score(userScore.getScore())
                     .riskLevel(userScore.getRiskLevel())
-                    .healthCheckups(healthCheckups)
-                    .exerciseSuggestions(exerciseSuggestions)
-                    .dietSuggestions(dietSuggestions)
+                    .suggestions(suggestions)
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error parsing data", e);
         }
+    }
+
+    @Override
+    public List<UserHealthTestStatus> getUserHealthTestStatus(Integer userId) {
+        List<HealthTest> healthTests = healthTestRepo.findAll();
+        List<UserScore> userScores = userScoreRepo.findByIdUserId(userId);
+        List<UserHealthTestStatus> userHealthTestStatus = new ArrayList<>();
+
+
+        for (HealthTest test : healthTests) {
+            boolean completed = userScores.stream()
+                .anyMatch(userScore -> userScore.getId().getHealthTestId().equals(test.getId()));
+        userHealthTestStatus.add(new UserHealthTestStatus(test, completed));
+        }
+        return userHealthTestStatus;
     }
 
 }

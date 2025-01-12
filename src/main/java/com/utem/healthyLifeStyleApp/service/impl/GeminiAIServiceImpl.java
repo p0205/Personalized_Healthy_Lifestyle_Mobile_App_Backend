@@ -140,7 +140,7 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
         text.append("\n**Response Format (JSON only):**\n You must not include explanations or any text outside of the JSON response. Do not wrap the JSON codes in JSON markers");
         text.append("{\n");
         
-        text.append("    \"riskLevel\": \"[Risk level]\",\n");
+        text.append("    \"riskLevel\": \"[Low/Moderate/High/Very High]\",\n");
         
         text.append("    \"suggestions\": {\n");
         text.append("        \"exercise\": \"[Exercise recommendations based on risk level]\",\n");

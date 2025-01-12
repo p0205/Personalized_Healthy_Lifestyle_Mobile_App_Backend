@@ -1,6 +1,7 @@
 package com.utem.healthyLifeStyleApp.dto;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserScoreDTO {
 
-    private Integer id;
-
     private Integer userId;
 
     private Integer healthTestId;
@@ -23,10 +22,6 @@ public class UserScoreDTO {
 
     private String riskLevel;
 
-    private List<String> healthCheckups;
-
-    private List<String> exerciseSuggestions;
-
-    private List<String> dietSuggestions;
+    private Map<String, List<String>> suggestions;
 
 }

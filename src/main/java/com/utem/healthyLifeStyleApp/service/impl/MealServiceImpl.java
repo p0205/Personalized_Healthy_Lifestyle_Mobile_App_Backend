@@ -124,10 +124,13 @@ public class MealServiceImpl implements MealService{
 			}
 		}
 
-
 		UserDTO user = userService.getUserById(userId);
-		double caloriesLeft = user.getGoalCalories() - totalCalories;
-
+		Integer goalCalories =  user.getGoalCalories();
+		Double caloriesLeft = null;
+		if(goalCalories != null){
+			caloriesLeft = user.getGoalCalories() - totalCalories;
+		}
+	
 		NutritionalSummaryDTO summaryDTO = NutritionalSummaryDTO.builder()
 																	.date(date)
 																	.caloriesIntake(totalCalories)

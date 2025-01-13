@@ -64,4 +64,7 @@ public class User {
 	@Column(nullable = false)
 	private Boolean isFirstLogin;
 
+	@Column(nullable = true, columnDefinition = "MEDIUMBLOB")  // Define column as MEDIUMBLOB in database
+	private byte[] profileImage;  // Profile image as byte array
+
 }

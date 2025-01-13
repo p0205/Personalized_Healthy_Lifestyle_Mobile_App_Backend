@@ -2,6 +2,7 @@ package com.utem.healthyLifeStyleApp.controller;
 
 import java.util.List;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +47,8 @@ public class RiskAssessmentController {
     @GetMapping("/riskAssessment/test/{userId}")
 	public ResponseEntity<List<UserHealthTestStatus>> getUserHealthTestStatus(@PathVariable("userId") Integer userId) {
 
-        return ResponseEntity.ok(riskAssessmentService.getUserHealthTestStatus(userId));
+        return ResponseEntity
+        .ok(riskAssessmentService.getUserHealthTestStatus(userId));
 
 	}
 
@@ -73,7 +75,9 @@ public class RiskAssessmentController {
                                      .body("Error processing AI response.");
             }
             // System.out.println("response: " + aiResponse.toString());
-            return ResponseEntity.ok(riskAssessmentService.processAIResponse(aiResponse));
+            return ResponseEntity.ok()
+                     .header(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8")
+                     .body(riskAssessmentService.processAIResponse(aiResponse));
             } catch (StatusRuntimeException e) {
            
             // Handle resource exhaustion error (quota exceeded)

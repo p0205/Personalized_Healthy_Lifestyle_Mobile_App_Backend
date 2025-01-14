@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 public class NutritionalSummaryDTO {
 
     private LocalDate date;
-    private double caloriesLeft;
-    private double caloriesIntake;
-    private double carbsIntake;
-    private double proteinIntake;
-    private double fatIntake;
+    private Double caloriesLeft;
+    private Double caloriesIntake;
+    private Double carbsIntake;
+    private Double proteinIntake;
+    private Double fatIntake;
 }

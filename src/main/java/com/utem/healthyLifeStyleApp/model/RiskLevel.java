@@ -1,7 +1,12 @@
 package com.utem.healthyLifeStyleApp.model;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,15 +22,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RiskLevel {
+public class RiskLevel implements Serializable{
 
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "health_test_id",nullable = false)
-    private HealthTest test;
+    @JsonIgnore
+    private HealthTest healthTest;
 
     @Column(nullable = false)
     private String RiskLevel;

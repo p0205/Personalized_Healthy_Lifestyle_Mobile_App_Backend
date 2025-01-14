@@ -20,6 +20,10 @@ public class UserDTO {
 	private Double weight;
 	private Double height;
 	private Integer goalCalories; //daily calories set by user
-	
-	
+	private String occupationType;
+    private String occupationTime;
+    private String healthHistory;
+    private String areaOfLiving;
+    private Integer noOfFamilyMember;
+	private byte[] profileImage;
 }

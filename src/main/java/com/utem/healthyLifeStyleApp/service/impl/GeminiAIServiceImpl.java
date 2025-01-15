@@ -24,6 +24,8 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
     // Get user profile and convert it to a map
 
     RiskAssessmentUserDTO userDTO = userService.getUserBasicInfoById(userId);
+
+    
 	
     // Fetch questions
     List<RiskAssessmentQuestionDTO> questionDTOs = riskAssessmentService.getQuestionsWithConditionsByTestId(healthId);
@@ -31,12 +33,13 @@ public String filterQuestionsPrompt(Integer userId, Integer healthId) {
     // Construct the prompt
     StringBuilder text = new StringBuilder("You are an intelligent assistant to provide tailored suggestions based on the final risk level:\n\n");
 
+    String gender = userDTO.getGender() == 'M' ? "Male" : "Female";
     // Add user profile information
     text.append("**User Profile:**\n");
     text.append("{\n");
     text.append("  \"id\": ").append(userDTO.getId()).append(",\n");
     text.append("  \"name\": \"").append(userDTO.getName()).append("\",\n");
-    text.append("  \"gender\": \"").append(userDTO.getGender()).append("\",\n");
+    text.append("  \"gender\": \"").append(gender).append("\",\n");
     text.append("  \"age\": ").append(userDTO.getAge()).append(",\n");
     text.append("  \"weight\": ").append(userDTO.getWeight()).append(",\n");
     text.append("  \"height\": ").append(userDTO.getHeight()).append(",\n");

@@ -11,6 +11,8 @@ import com.utem.healthyLifeStyleApp.model.UserSport;
 @Mapper(componentModel = "spring")
 public interface UserSportMapper {
 
+    @Mapping(target = "sport", ignore = true)
+    @Mapping(target = "user", ignore = true)
     UserSport fromDto(UserSportDTO dto);
 
     @Mapping(target = "userId", source = "user.id")

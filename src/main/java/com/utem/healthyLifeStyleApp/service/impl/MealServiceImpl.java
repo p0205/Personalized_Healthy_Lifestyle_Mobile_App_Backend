@@ -125,6 +125,7 @@ public class MealServiceImpl implements MealService{
 		}
 
 		UserDTO user = userService.getUserById(userId);
+		
 		Integer goalCalories =  user.getGoalCalories();
 		Double caloriesLeft = null;
 		if(goalCalories != null){

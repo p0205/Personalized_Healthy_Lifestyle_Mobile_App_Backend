@@ -24,10 +24,13 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public UserDTO getUserById(Integer id) {
-		
+		System.out.println(id);
 		Optional<User> user = userRepo.findById(id);
-		if(user.isEmpty())
+		if(user.isEmpty()){
+			System.out.println("user is empty");
 			return null;
+		}
+			
 		return mapper.toDTO(user.get());
 	}
 
